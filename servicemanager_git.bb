@@ -11,7 +11,7 @@ DEPENDS += "gst-plugins-rdk-aamp"
 
 EXTRA_QMAKEVARS_PRE += "${@bb.utils.contains('DISTRO_FEATURES', 'ctrlm', 'DEFINES+=USE_UNIFIED_CONTROL_MGR_API_1', 'DEFINES+=BASTILLE_37', d)}"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'ctrlm', 'ctrlm-headers', '', d)}"
-
+ 
 EXTRA_QMAKEVARS_PRE += "${@bb.utils.contains('DISTRO_FEATURES', 'bluetooth', 'DEFINES+=ENABLE_BLUETOOTH_CONTROL', '', d)}"
 EXTRA_QMAKEVARS_PRE += "DEFINES+=TRM_USE_SSL"
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'bluetooth', 'bluetooth-mgr', '', d)}"
@@ -21,29 +21,23 @@ RDEPENDS_${PN} += "rdkservices"
 DEPENDS += "safec-common-wrapper"
 DEPENDS_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'safec', ' safec', ' ', d)}"
 inherit pkgconfig
+
 CXXFLAGS_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'safec', ' `pkg-config --cflags libsafec`', ' -fPIC', d)}"
 CXXFLAGS_append_client = " ${@bb.utils.contains('DISTRO_FEATURES', 'safec', ' `pkg-config --cflags libsafec`', ' -fPIC', d)}"
-
 LDFLAGS_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'safec', ' `pkg-config --libs libsafec`', '', d)}"
 CXXFLAGS_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'safec', '', ' -DSAFEC_DUMMY_API', d)}"
 
 EXTRA_QMAKEVARS_PRE += "CONFIG+=build_refactored_storagemanager"
 EXTRA_QMAKEVARS_PRE += "CONFIG+=build_with_pxscene"
-
 EXTRA_QMAKEVARS_PRE += "DEFINES+=USE_YAJL2"
 
-CXXFLAGS += "-std=c++11"
+CXXFLAGS += "-std=c++11 -I${STAGING_INCDIR}/pxcore -I${STAGING_INCDIR}/freetype2 -I${STAGING_INCDIR}/libnode -I${STAGING_INCDIR}/libnode/deps/uv -I${STAGING_INCDIR}/libnode/deps/v8 -I${STAGING_INCDIR}/libnode/deps/cares -I${STAGING_INCDIR}/libnode/deps/debugger-agent/include -I${STAGING_INCDIR}/libnode/deps/v8/include"
 
 SRC_URI = "${CMF_GIT_ROOT}/rdk/components/generic/servicemanager;protocol=${CMF_GIT_PROTOCOL};branch=${CMF_GIT_BRANCH};name=servicemanager"
 SRC_URI += "${CMF_GIT_ROOT}/rdk/devices/intel-x86-pc/emulator/servicemanager;protocol=${CMF_GIT_PROTOCOL};branch=${CMF_GIT_BRANCH};destsuffix=git/platform/rdkemulator;name=svcmgrplat"
 SRCREV_FORMAT = "${AUTOREV}"
 SRCREV_servicemanager = "${AUTOREV}"
 SRCREV_svcmgrplat = "${AUTOREV}"
-
-CXXFLAGS += "-I${STAGING_INCDIR}/pxcore -I${STAGING_INCDIR}/freetype2"
-CXXFLAGS += "-I${STAGING_INCDIR}/libnode -I${STAGING_INCDIR}/libnode/deps/uv -I${STAGING_INCDIR}/libnode/deps/v8 -I${STAGING_INCDIR}/libnode/deps/cares"
-CXXFLAGS += "-I${STAGING_INCDIR}/libnode/deps/debugger-agent/include -I${STAGING_INCDIR}/libnode/deps/v8/include"
-CXXFLAGS += "-std=c++11"
 
 S = "${WORKDIR}/git/build/servicemanager"
 QMAKE_PROFILES = "${S}/../servicemanagermain.pro"
@@ -52,7 +46,6 @@ RDEPENDS_${PN} += "devicesettings tts"
 
 inherit qmake5 coverity
 OE_QMAKE_PATH_HEADERS = "${OE_QMAKE_PATH_QT_HEADERS}"
-CXXFLAGS += "-I${STAGING_INCDIR}/pxcore"
 
 FILES_${PN} += "/home/root"
 FILES_${PN}-dbg += "/home/root/.debug"
@@ -80,7 +73,5 @@ do_install() {
     install -m 0755 ${S}/../../rfcdefaults/servicemanager.ini ${D}${sysconfdir}/rfcdefaults
 }
 
-export QTROOT = '='
-export FSROOT = '='
 export RDK_FSROOT_PATH = "${STAGING_DIR_TARGET}"
 FILES_${PN} += "${sysconfdir}/rfcdefaults/servicemanager.ini"
